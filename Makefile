@@ -4,7 +4,7 @@ CC := $(CROSS_COMPILE)gcc
 CFLAGS = -fno-common -ffreestanding -O0 \
 	 -gdwarf-2 -g3 -Wall -Werror \
 	 -mcpu=cortex-m4 -mthumb \
-	 -Wl,-Thello.ld -nostartfiles \
+	 -Wl,-Tstm32f303ze.ld -nostartfiles \
 
 FPU_FLAGS = -mfpu=fpv4-sp-d16 \
 	 -mfloat-abi=hard
@@ -21,3 +21,9 @@ $(TARGET): main.c startup.c
 
 upload:
 	openocd -f interface/stlink.cfg -f target/stm32f3x.cfg -c " program final.elf verify reset exit "
+
+debug:
+	openocd -f interface/stlink.cfg -f target/stm32f3x.cfg
+
+clean:
+	rm *.bin *.elf *.list

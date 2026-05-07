@@ -1,21 +1,65 @@
 CROSS_COMPILE ?= arm-none-eabi-
 CC := $(CROSS_COMPILE)gcc
+AS := $(CROSS_COMPILE)as
+
+CMSIS_DIRS := core device
+
+STARTUP := CMSIS/device/startup_stm32f30x.s
+SYSTEM  := CMSIS/device/system_stm32f30x.c
 
 CFLAGS = -fno-common -ffreestanding -O0 \
 	 -gdwarf-2 -g3 -Wall -Werror \
 	 -mcpu=cortex-m4 -mthumb \
 	 -Wl,-Tstm32f303ze.ld -nostartfiles \
 
+CFLAGS += $(foreach d,$(CMSIS_DIRS), -ICMSIS/$(d))
+CFLAGS += -Idriver
+CFLAGS += -DUSE_STDPERIPH_DRIVER
+
 FPU_FLAGS = -mfpu=fpv4-sp-d16 \
 	 -mfloat-abi=hard
 
-TARGET = final.bin
-all: $(TARGET)
+C_SRCS := main.c \
+		led.c \
+		gpio.c \
+		$(wildcard driver/*c) \
+		$(SYSTEM)
 
-$(TARGET): main.c startup.c
+SRCS := $(C_SRCS) $(STARTUP)
+
+OBJ_DIR := build
+
+OBJS := $(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(C_SRCS))) \
+        $(OBJ_DIR)/startup_stm32f30x.o \
+
+
+TARGET = final.bin
+
+all: $(OBJ_DIR) $(TARGET)
+
+$(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $(FPU_FLAGS) $^ -o final.elf
 	$(CROSS_COMPILE)objcopy -Obinary final.elf final.bin
 	$(CROSS_COMPILE)objdump -S final.elf > final.list
+
+
+# Compile .c to .o
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
+$(OBJ_DIR)/%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: driver/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: CMSIS/device/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+
+$(OBJ_DIR)/startup_stm32f30x.o: $(STARTUP)
+	$(AS) $(ASFLAGS) -c $< -o $@
+
 
 
 
@@ -26,4 +70,5 @@ debug:
 	openocd -f interface/stlink.cfg -f target/stm32f3x.cfg
 
 clean:
+	rm -rf build
 	rm *.bin *.elf *.list

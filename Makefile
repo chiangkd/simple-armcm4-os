@@ -13,7 +13,7 @@ CFLAGS = -fno-common -ffreestanding -O0 \
 	 -Wl,-Tstm32f303ze.ld -nostartfiles \
 
 CFLAGS += $(foreach d,$(CMSIS_DIRS), -ICMSIS/$(d))
-CFLAGS += -Idriver
+CFLAGS += -ISPL
 CFLAGS += -DUSE_STDPERIPH_DRIVER
 
 FPU_FLAGS = -mfpu=fpv4-sp-d16 \
@@ -21,8 +21,8 @@ FPU_FLAGS = -mfpu=fpv4-sp-d16 \
 
 C_SRCS := main.c \
 		led.c \
-		gpio.c \
-		$(wildcard driver/*c) \
+		uart.c \
+		$(wildcard SPL/*c) \
 		$(SYSTEM)
 
 SRCS := $(C_SRCS) $(STARTUP)
@@ -50,7 +50,7 @@ $(OBJ_DIR):
 $(OBJ_DIR)/%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/%.o: driver/%.c
+$(OBJ_DIR)/%.o: SPL/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/%.o: CMSIS/device/%.c

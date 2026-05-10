@@ -1,4 +1,7 @@
 #include "led.h"
+#include "stm32f30x_usart.h"
+#include "stm32f30x_rcc.h"
+#include "stm32f30x_gpio.h"
 
 void turn_on_led_all()
 {
@@ -16,21 +19,27 @@ void turn_on_led_all()
     // - LD3 -> PB14: base: 0x48000400 + GPIOx_ODR: 0x14  (Set [14] to 0x01: Port output data)
 
     // Enable GPIOB clock
-    RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+
+    GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_7 | GPIO_Pin_14;
 
     // Set PB0, 7, 14 moder as OUTPUT
-    GPIOB->MODER &= ~((0x3 << (0*2)) | (0x3 << (7*2)) | (0x3 << (14*2))); // clear
-    GPIOB->MODER |=  ((0x1 << (0*2)) | (0x1 << (7*2)) | (0x1 << (14*2))); // output
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 
     // Set push-pull
-    GPIOB->OTYPER &= ~((1 << 0) | (1 << 7) | (1 << 14)); 
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 
     // Set high speed
-    GPIOB->OSPEEDR |= ((0x3 << (0*2)) | (0x3 << (7*2)) | (0x3 << (14*2)));
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
     // Set no pull-up pull-down R
-    GPIOB->PUPDR &= ~((0x3 << (0*2)) | (0x3 << (7*2)) | (0x3 << (14*2)));
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+
 
     // Turn on LED
-    GPIOB->ODR |= (1 << 0) | (1 << 7) | (1 << 14);
+    GPIO_SetBits(GPIOB, GPIO_Pin_0 | GPIO_Pin_7 | GPIO_Pin_14);
 }

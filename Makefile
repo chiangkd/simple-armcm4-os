@@ -6,6 +6,7 @@ CMSIS_DIRS := core device
 
 STARTUP := CMSIS/device/startup_stm32f30x.s
 SYSTEM  := CMSIS/device/system_stm32f30x.c
+KERNEL  := kernel/port.s
 
 CFLAGS = -fno-common -ffreestanding -O0 \
 	 -gdwarf-2 -g3 -Wall -Werror \
@@ -14,6 +15,7 @@ CFLAGS = -fno-common -ffreestanding -O0 \
 
 CFLAGS += $(foreach d,$(CMSIS_DIRS), -ICMSIS/$(d))
 CFLAGS += -ISPL
+CFLAGS += -Ikernel
 CFLAGS += -DUSE_STDPERIPH_DRIVER
 
 FPU_FLAGS = -mfpu=fpv4-sp-d16 \
@@ -25,12 +27,13 @@ C_SRCS := main.c \
 		$(wildcard SPL/*c) \
 		$(SYSTEM)
 
-SRCS := $(C_SRCS) $(STARTUP)
+SRCS := $(C_SRCS) $(STARTUP) $(KERNEL)
 
 OBJ_DIR := build
 
 OBJS := $(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(C_SRCS))) \
         $(OBJ_DIR)/startup_stm32f30x.o \
+		$(OBJ_DIR)/port.o
 
 
 TARGET = final.bin
@@ -60,6 +63,8 @@ $(OBJ_DIR)/%.o: CMSIS/device/%.c
 $(OBJ_DIR)/startup_stm32f30x.o: $(STARTUP)
 	$(AS) $(ASFLAGS) -c $< -o $@
 
+$(OBJ_DIR)/port.o: kernel/port.s
+	$(CC) $(CFLAGS) -c $< -o $@
 
 
 

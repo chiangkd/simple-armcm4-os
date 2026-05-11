@@ -17,3 +17,4 @@ Connecting VCM on ST-LINK
 ```shell
 screen /dev/ttyACM0 115200
 ```
+- `Ctrl-A` + `K` to exit

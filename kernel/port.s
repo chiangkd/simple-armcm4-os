@@ -2,6 +2,8 @@
 .syntax unified
 
 .global activate
+.global SVC_Handler
+
 activate:
 	/* save kernel state */
 	mrs ip, psr
@@ -16,4 +18,15 @@ activate:
 	pop {r4, r5, r6, r7, r8, r9, r10, r11, lr}
 
 	/* jump to user task */
+	bx lr
+
+SVC_Handler:
+	/* save user state */
+	mrs r0, psp
+	stmdb r0!, {r4, r5, r6, r7, r8, r9, r10, r11, lr}
+
+	/* load kernel state */
+	pop {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}
+	msr psr_nzcvq, ip
+
 	bx lr

@@ -6,7 +6,7 @@ CMSIS_DIRS := core device
 
 STARTUP := CMSIS/device/startup_stm32f30x.s
 SYSTEM  := CMSIS/device/system_stm32f30x.c
-KERNEL  := kernel/port.s
+KERNEL  := kernel/port_asm.s kernel/port.c
 
 CFLAGS = -fno-common -ffreestanding -O0 \
 	 -gdwarf-2 -g3 -Wall -Werror \
@@ -33,6 +33,7 @@ OBJ_DIR := build
 
 OBJS := $(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(C_SRCS))) \
         $(OBJ_DIR)/startup_stm32f30x.o \
+		$(OBJ_DIR)/port_asm.o \
 		$(OBJ_DIR)/port.o
 
 
@@ -63,9 +64,11 @@ $(OBJ_DIR)/%.o: CMSIS/device/%.c
 $(OBJ_DIR)/startup_stm32f30x.o: $(STARTUP)
 	$(AS) $(ASFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/port.o: kernel/port.s
+$(OBJ_DIR)/port_asm.o: kernel/port_asm.s
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(OBJ_DIR)/port.o: kernel/port.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 
 upload:

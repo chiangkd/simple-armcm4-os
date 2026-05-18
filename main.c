@@ -23,7 +23,13 @@ int main(void)
 	UART3_Config(115200);
     UART3_SendString((greet));
 
+	// In main function, provide a 256 * 4 = 1024 bit array
+	// as usertask private sandbox
 	unsigned int usertask_stack[256];
+
+	// The address of stack is descneding, so the start point of
+	// new stack should be at the last of the array (+256)
+	// -16 is reserved for r4 - r11
 	unsigned int *usertask_stack_start = usertask_stack + 256 - 16;
 	usertask_stack_start[8] = (unsigned int) &usertask;
 

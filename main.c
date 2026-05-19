@@ -13,6 +13,11 @@ void usertask(void)
 
 	asm volatile("svc #0");
 
+    UART3_SendString("[2nd] Start user task\r\n");
+	UART3_SendString("[2nd] User Task #1\r\n");
+
+	asm volatile("svc #0");
+
 	UART3_SendString("This should not be printed\r\n");
 
 	while (1); /* Never terminate the task */
@@ -33,10 +38,15 @@ int main(void)
 	unsigned int *usertask_stack_start = usertask_stack + 256 - 16;
 	usertask_stack_start[8] = (unsigned int) &usertask;
 
-    activate(usertask_stack_start);
+	UART3_SendString("OS: Starting\r\n");
 
+    usertask_stack_start = activate(usertask_stack_start);
 
 	UART3_SendString("Back to main function\r\n");
+
+    usertask_stack_start = activate(usertask_stack_start);
+
+
     turn_on_led_all();
 
 

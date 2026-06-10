@@ -43,3 +43,8 @@ void turn_on_led_all()
     // Turn on LED
     GPIO_SetBits(GPIOB, GPIO_Pin_0 | GPIO_Pin_7 | GPIO_Pin_14);
 }
+
+void turn_off_led_all()
+{
+    GPIO_ResetBits(GPIOB, GPIO_Pin_0 | GPIO_Pin_7 | GPIO_Pin_14);
+}

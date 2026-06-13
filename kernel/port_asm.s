@@ -7,7 +7,10 @@
 
 .type SVC_Handler, %function
 .global SVC_Handler
+.type SysTick_Handler, %function
+.global SysTick_Handler
 SVC_Handler:
+SysTick_Handler:
 	/* save user state */
 	mrs r0, psp
 	stmdb r0!, {r4, r5, r6, r7, r8, r9, r10, r11, lr}
@@ -38,15 +41,13 @@ task_init_env:
 	mov r0, #3
 	msr control, r0
 	isb
-	bl syscall
+	svc 0
 	bx lr
 
 .syntax unified
 
 .global syscall
 syscall:
-	nop
 	svc 0
-	nop
 	bx lr
 

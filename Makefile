@@ -6,7 +6,7 @@ CMSIS_DIRS := core device
 
 STARTUP := CMSIS/device/startup_stm32f30x.s
 SYSTEM  := CMSIS/device/system_stm32f30x.c
-KERNEL  := kernel/port_asm.s kernel/port.c
+KERNEL  := kernel/port_asm.s kernel/malloc.c kernel/thread.c
 
 CFLAGS = -fno-common -ffreestanding -O0 \
 	 -gdwarf-2 -g3 -Wall -Werror \
@@ -25,6 +25,7 @@ C_SRCS := main.c \
 		led.c \
 		uart.c \
 		$(wildcard SPL/*c) \
+		$(wildcard kernel/*c) \
 		$(SYSTEM)
 
 SRCS := $(C_SRCS) $(STARTUP) $(KERNEL)
@@ -34,8 +35,6 @@ OBJ_DIR := build
 OBJS := $(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(C_SRCS))) \
         $(OBJ_DIR)/startup_stm32f30x.o \
 		$(OBJ_DIR)/port_asm.o \
-		$(OBJ_DIR)/port.o
-
 
 TARGET = final.bin
 
@@ -60,15 +59,17 @@ $(OBJ_DIR)/%.o: SPL/%.c
 $(OBJ_DIR)/%.o: CMSIS/device/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-
 $(OBJ_DIR)/startup_stm32f30x.o: $(STARTUP)
 	$(AS) $(ASFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: kernel/%.c $(OBJ_DIR)/port_asm.o
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/port_asm.o: kernel/port_asm.s
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/port.o: kernel/port.c
-	$(CC) $(CFLAGS) -c $< -o $@
+# $(OBJ_DIR)/port.o: kernel/port.c
+# 	$(CC) $(CFLAGS) -c $< -o $@
 
 
 upload:

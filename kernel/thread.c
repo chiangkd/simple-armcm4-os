@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "os.h"
+#include "kernel.h"
 #include "thread.h"
 #include "malloc.h"
 #include "port.h"

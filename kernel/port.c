@@ -1,6 +1,6 @@
 #include "stm32f30x.h"
 #include "port.h"
-#include "os.h"
+#include "kernel.h"
 
 void SysTick_Handler(void)
 {

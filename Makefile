@@ -16,14 +16,14 @@ CFLAGS = -fno-common -ffreestanding -O0 \
 CFLAGS += $(foreach d,$(CMSIS_DIRS), -ICMSIS/$(d))
 CFLAGS += -ISPL
 CFLAGS += -Ikernel
+CFLAGS += -Idriver
 CFLAGS += -DUSE_STDPERIPH_DRIVER
 
 FPU_FLAGS = -mfpu=fpv4-sp-d16 \
 	 -mfloat-abi=hard
 
 C_SRCS := main.c \
-		led.c \
-		uart.c \
+		$(wildcard driver/*.c) \
 		$(wildcard SPL/*c) \
 		$(wildcard kernel/*c) \
 		$(SYSTEM)

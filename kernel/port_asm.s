@@ -1,5 +1,29 @@
 .syntax unified
 
+.type PendSV_Handler, %function
+.global PendSV_Handler
+PendSV_Handler:
+	cpsid i				/* turn off interrupt */
+
+	/* save user task */
+	mrs r0, psp					/* Load psp to r0 */
+
+	stmdb r0!, {r4-r11, r7, lr}		/* r4-r11 and lr to PSP */
+
+	/* Turn on the privilege mode and use MSP */
+	mov r1, #0
+	msr control, r1
+	isb
+
+	/* pop kernal state from MSP */
+	pop {r4-r11, ip, lr}
+	msr psr_nzcvq, ip
+
+	/* Enable IRQ */
+	cpsie i
+
+	bx lr
+
 .type SVC_Handler, %function
 .global SVC_Handler
 SVC_Handler:

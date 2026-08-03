@@ -82,10 +82,10 @@ int main(void)
 	if (thread_create(task3_func, (void *) str3) == -1)
 		UART3_SendString("Thead 3 creation failed \r\n");
 
-	// if (SysTick_Config(SystemCoreClock / 1000)) {
-	// 	UART3_SendString("OS: SysTick Configuration Failed!\n");
-	// 	while (1);
-	// }
+	if (SysTick_Config(SystemCoreClock / 100)) {
+		UART3_SendString("OS: SysTick Configuration Failed!\n");
+		while (1);
+	}
 
 	// Make sure pendsv IRQ has lower priority
 	NVIC_SetPriority(PendSV_IRQn, 15);

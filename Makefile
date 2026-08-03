@@ -53,6 +53,9 @@ $(OBJ_DIR):
 $(OBJ_DIR)/%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(OBJ_DIR)/%.o: driver/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 $(OBJ_DIR)/%.o: SPL/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 

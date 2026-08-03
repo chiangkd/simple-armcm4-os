@@ -1,6 +1,24 @@
 #include <stdint.h>
+#include <stdbool.h>
 #include "kernel.h"
 #include "uart.h"
+
+static bool syscall_flag;
+
+void set_syscall_flag(void)
+{
+    syscall_flag = true;
+}
+
+void reset_syscall_flag(void)
+{
+    syscall_flag = false;
+}
+
+bool get_syscall_flag(void)
+{
+    return syscall_flag;
+}
 
 
 void syscall_handler(uint32_t *svc_args)

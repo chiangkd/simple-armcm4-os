@@ -8,6 +8,11 @@
 
 static char greet[] = "Hello STM32F303ZE via ST-Link (USART3)!\r\n";
 
+uint32_t *current_task_psp = NULL;
+volatile int syscall_pending = 0;
+uint32_t curr_task_idx;
+
+
 void usertask(void)
 {
     UART3_SendString("Start user task\r\n");
@@ -77,15 +82,23 @@ int main(void)
 	if (thread_create(task3_func, (void *) str3) == -1)
 		UART3_SendString("Thead 3 creation failed \r\n");
 
-	if (SysTick_Config(SystemCoreClock / 10)) {
-		UART3_SendString("OS: SysTick Configuration Failed!\n");
-		while (1);
-	}
+	// if (SysTick_Config(SystemCoreClock / 1000)) {
+	// 	UART3_SendString("OS: SysTick Configuration Failed!\n");
+	// 	while (1);
+	// }
 
 	// Make sure pendsv IRQ has lower priority
 	NVIC_SetPriority(PendSV_IRQn, 15);
 
-	thread_start();
+	curr_task_idx = 0;
+
+	platform_init();
+
+	while (1) {
+		uint32_t *user_psp = tasks[curr_task_idx].stack;
+		switch_to_task(user_psp);
+		curr_task_idx = (curr_task_idx + 1) % 3;	// Simple schedular
+	}
 
 	// Never runs here
     turn_on_led_all();

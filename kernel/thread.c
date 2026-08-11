@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdbool.h>
 #include "kernel.h"
 #include "thread.h"
 #include "malloc.h"
@@ -10,6 +11,18 @@
 #define THREAD_PSP	0xFFFFFFFD
 
 tcb_t tasks[MAX_TASKS];
+
+extern volatile bool need_schedule;
+extern uint32_t curr_task_idx;
+
+void pendsv_save_psp(uint32_t *task_psp)
+{
+	// Save the interrupted task's stack pointer
+	tasks[curr_task_idx].stack = task_psp;
+    
+	// Notify main function to switch the task
+    need_schedule = true;
+}
 
 int thread_create(void (*run)(void *), void *userdata)
 {

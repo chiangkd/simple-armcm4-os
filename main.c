@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "stm32f30x.h"
 #include "led.h"
 #include "uart.h"
@@ -11,6 +12,8 @@ static char greet[] = "Hello STM32F303ZE via ST-Link (USART3)!\r\n";
 uint32_t *current_task_psp = NULL;
 volatile int syscall_pending = 0;
 uint32_t curr_task_idx;
+
+volatile bool need_schedule = false;
 
 
 void usertask(void)
@@ -95,9 +98,12 @@ int main(void)
 	platform_init();
 
 	while (1) {
+		if (need_schedule) {
+			need_schedule = false;
+			curr_task_idx = (curr_task_idx + 1) % 3;    // round-robin
+		}
 		uint32_t *user_psp = tasks[curr_task_idx].stack;
 		switch_to_task(user_psp);
-		curr_task_idx = (curr_task_idx + 1) % 3;	// Simple schedular
 	}
 
 	// Never runs here

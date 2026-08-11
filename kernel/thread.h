@@ -12,6 +12,7 @@ typedef struct {
 
 extern tcb_t tasks[MAX_TASKS];
 
+void pendsv_save_psp(uint32_t *task_psp);
 void thread_start();
 int thread_create(void (*run)(void *), void *userdata);
 void thread_kill(int thread_id);

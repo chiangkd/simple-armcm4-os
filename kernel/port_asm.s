@@ -8,7 +8,7 @@ PendSV_Handler:
 	/* save user task */
 	mrs r0, psp					/* Load psp to r0 */
 
-	stmdb r0!, {r4-r11, r7, lr}		/* r4-r11 and lr to PSP */
+	stmdb r0!, {r4-r11, lr}		/* r4-r11 and lr to PSP */
 
 	/* Turn on the privilege mode and use MSP */
 	mov r1, #0
@@ -18,6 +18,10 @@ PendSV_Handler:
 	/* pop kernal state from MSP */
 	pop {r4-r11, ip, lr}
 	msr psr_nzcvq, ip
+
+	push {r0-r3, lr}
+	bl   pendsv_save_psp
+	pop  {r0-r3, lr}
 
 	/* Enable IRQ */
 	cpsie i
@@ -32,7 +36,7 @@ SVC_Handler:
 	/* save user task */
 	mrs r0, psp					/* Load psp to r0 */
 	
-	stmdb r0!, {r4-r11, r7, lr}		/* r4-r11 and lr to PSP */
+	stmdb r0!, {r4-r11, lr}		/* r4-r11 and lr to PSP */
 
 	/* Turn on the privilege mode and use MSP */
 	mov r1, #0
@@ -85,6 +89,7 @@ switch_to_task:
 
 	/* Pop r4-r11 and EXC_RETURN to lr */
     ldmia r0!, {r4-r11, lr}
+
     msr   psp, r0
 
 	/* Exception return */

@@ -1,4 +1,4 @@
-# mini-armcm4-os
+# simple-armcm4-os
 
 A minimal multi-tasking OS kernel for ARM CM4
 
